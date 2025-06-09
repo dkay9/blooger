@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
-import { Sun, Moon, PencilLine, Bell, Menu, X, LogIn, LogOut, LayoutDashboard } from "lucide-react";
+import { Sun, Moon, PencilLine, Bell, Menu, X, LogIn, LogOut, LayoutDashboard, User } from "lucide-react";
 import { isLoggedIn, logout } from "../utils/auth";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -58,14 +58,27 @@ export default function Header() {
           <nav className="hidden sm:flex items-center gap-4">
             {loggedIn ? (
               <>
-                <Link to="/dashboard" className="hover:text-blue-500">Dashboard</Link>
+                <Link to="/dashboard" title="Dashboard" className="hover:text-blue-500">
+                  <LayoutDashboard className="w-5 h-5" />
+                </Link>
                 <Link to="/editor" title="New Post" className="hover:text-blue-500">
                   <PencilLine className="w-5 h-5" />
                 </Link>
                 <Link to="/notifications" title="Notifications" className="hover:text-blue-500">
                   <Bell className="w-5 h-5" />
                 </Link>
-                <button onClick={handleLogout} className="text-red-600 hover:underline">Logout</button>
+                <Link to="/profile" title="Profile" className="hover:text-blue-500">
+                  <User className="w-5 h-5" />
+                </Link>
+
+                <button
+                    onClick={handleLogout}
+                    title="Logout"
+                    className="text-red-600 hover:text-red-700"
+                    >
+                    <LogOut className="w-5 h-5" />
+                </button>
+
               </>
             ) : (
               <Link to="/login" className="hover:text-blue-500">Login</Link>
@@ -96,16 +109,25 @@ export default function Header() {
                 {loggedIn ? (
                 <>
                     <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
-                    <LayoutDashboard className="w-4 h-4" />
-                    Dashboard
+                        <LayoutDashboard className="w-4 h-4" />
+                        Dashboard
                     </Link>
                     <Link to="/editor" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
-                    <PencilLine className="w-4 h-4" />
-                    Write Post
+                        <PencilLine className="w-4 h-4" />
+                        Write Post
                     </Link>
+                    <Link
+                        to="/profile"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2"
+                    >
+                        <User className="w-5 h-5" />
+                        Profile
+                    </Link>
+
                     <Link to="/notifications" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
-                    <Bell className="w-4 h-4" />
-                    Notifications
+                        <Bell className="w-4 h-4" />
+                        Notifications
                     </Link>
                     <button
                     onClick={() => {
