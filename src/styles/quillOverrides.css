@@ -1,0 +1,34 @@
+/* Default (light mode) */
+.ql-toolbar.ql-snow {
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+}
+
+.ql-container.ql-snow {
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+}
+
+/* Dark mode overrides */
+.dark .ql-toolbar.ql-snow {
+  background-color: #1f2937; /* Tailwind gray-800 */
+  color: white;
+  border-color: #374151;     /* Tailwind gray-700 */
+}
+
+.dark .ql-container.ql-snow {
+  background-color: #1f2937; /* Tailwind gray-800 */
+  color: white;
+  border-color: #374151;
+}
+
+/* Ensure buttons/icons also adapt */
+.dark .ql-toolbar button,
+.dark .ql-toolbar .ql-picker,
+.dark .ql-toolbar .ql-stroke {
+  color: white;
+  stroke: white;
+  fill: white;
+}

@@ -33,7 +33,7 @@ export default function Header() {
           Blooger
         </Link>
 
-        {/* Search Bar (in between) */}
+        {/* Search Bar */}
         <form
           onSubmit={handleSearch}
           className="flex-grow max-w-md mx-2"
