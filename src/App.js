@@ -22,7 +22,7 @@ function App() {
       author,
     };
 
-    setPosts([post, ...posts]);
+    setPosts((prev) => [post, ...prev]);
   };
 
   return (

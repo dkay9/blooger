@@ -1,10 +1,21 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useTheme } from "../context/ThemeContext";
-import { Sun, Moon, PencilLine, Bell, Menu, X, LogIn, LogOut, LayoutDashboard, User } from "lucide-react";
+import {
+  Sun,
+  Moon,
+  PencilLine,
+  Bell,
+  Menu,
+  X,
+  LogIn,
+  LogOut,
+  LayoutDashboard,
+  User,
+  Home // ✅ Add Home icon import
+} from "lucide-react";
 import { isLoggedIn, logout } from "../utils/auth";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { useTheme } from "../context/ThemeContext";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -58,6 +69,9 @@ export default function Header() {
           <nav className="hidden sm:flex items-center gap-4">
             {loggedIn ? (
               <>
+                <Link to="/" title="Home" className="hover:text-blue-500">
+                  <Home className="w-5 h-5" />
+                </Link>
                 <Link to="/dashboard" title="Dashboard" className="hover:text-blue-500">
                   <LayoutDashboard className="w-5 h-5" />
                 </Link>
@@ -70,15 +84,13 @@ export default function Header() {
                 <Link to="/profile" title="Profile" className="hover:text-blue-500">
                   <User className="w-5 h-5" />
                 </Link>
-
                 <button
-                    onClick={handleLogout}
-                    title="Logout"
-                    className="text-red-600 hover:text-red-700"
-                    >
-                    <LogOut className="w-5 h-5" />
+                  onClick={handleLogout}
+                  title="Logout"
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <LogOut className="w-5 h-5" />
                 </button>
-
               </>
             ) : (
               <Link to="/login" className="hover:text-blue-500">Login</Link>
@@ -98,71 +110,72 @@ export default function Header() {
       {/* Mobile dropdown menu with icons */}
       <AnimatePresence>
         {menuOpen && (
-            <motion.div
+          <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
             className="absolute top-full left-0 w-full z-50 bg-white dark:bg-gray-800 p-4 shadow-md border-t dark:border-gray-700"
-            >
+          >
             <div className="flex flex-col gap-3 text-sm">
-                {loggedIn ? (
+              {loggedIn ? (
                 <>
-                    <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
-                        <LayoutDashboard className="w-4 h-4" />
-                        Dashboard
-                    </Link>
-                    <Link to="/editor" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
-                        <PencilLine className="w-4 h-4" />
-                        Write Post
-                    </Link>
-                    <Link
-                        to="/profile"
-                        onClick={() => setMenuOpen(false)}
-                        className="flex items-center gap-2"
-                    >
-                        <User className="w-5 h-5" />
-                        Profile
-                    </Link>
-
-                    <Link to="/notifications" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
-                        <Bell className="w-4 h-4" />
-                        Notifications
-                    </Link>
-                    <button
+                  <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
+                    <Home className="w-4 h-4" />
+                    Home
+                  </Link>
+                  <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
+                    <LayoutDashboard className="w-4 h-4" />
+                    Dashboard
+                  </Link>
+                  <Link to="/editor" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
+                    <PencilLine className="w-4 h-4" />
+                    Write Post
+                  </Link>
+                  <Link
+                    to="/profile"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2"
+                  >
+                    <User className="w-5 h-5" />
+                    Profile
+                  </Link>
+                  <Link to="/notifications" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
+                    <Bell className="w-4 h-4" />
+                    Notifications
+                  </Link>
+                  <button
                     onClick={() => {
-                        handleLogout();
-                        setMenuOpen(false);
+                      handleLogout();
+                      setMenuOpen(false);
                     }}
                     className="flex items-center gap-2 text-red-600"
-                    >
+                  >
                     <LogOut className="w-4 h-4" />
                     Logout
-                    </button>
+                  </button>
                 </>
-                ) : (
+              ) : (
                 <Link to="/login" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
-                    <LogIn className="w-4 h-4" />
-                    Login
+                  <LogIn className="w-4 h-4" />
+                  Login
                 </Link>
-                )}
+              )}
 
-                <button
+              <button
                 onClick={() => {
-                    toggleTheme();
-                    setMenuOpen(false);
+                  toggleTheme();
+                  setMenuOpen(false);
                 }}
                 className="flex items-center gap-2 text-gray-600 dark:text-white"
-                >
+              >
                 {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                 Toggle Theme
-                </button>
+              </button>
             </div>
-            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
-
-
     </header>
   );
 }
