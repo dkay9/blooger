@@ -10,10 +10,16 @@ import { ThemeProvider } from './context/ThemeContext';
 function App() {
   const [posts, setPosts] = useState([]);
 
+  const mockUser = {
+    name: "Jane Doe",
+    email: "jane@example.com",
+    role: "writer"
+  };
+
   const handleSavePost = (newPost) => {
     const slug = newPost.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
     const createdAt = new Date().toISOString();
-    const author = "Anonymous"; // Replace with real user if available
+    const author = mockUser.name; // Replace with real user if available
 
     const post = {
       ...newPost,
@@ -30,7 +36,7 @@ function App() {
       <ThemeProvider>
         <Routes>
           <Route path="/" element={<Home posts={posts} />} />
-          <Route path="/editor" element={<PostEditor onSave={handleSavePost} />} />
+          <Route path="/editor" element={<PostEditor onSave={handleSavePost} currentUser={mockUser}/>} />
           <Route path="/post/:id" element={<Post />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />

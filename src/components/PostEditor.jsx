@@ -5,7 +5,7 @@ import "../styles/quillOverrides.css";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 
-export default function PostEditor({ onSave }) {
+export default function PostEditor({ onSave, currentUser }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [thumbnail, setThumbnail] = useState(null);
@@ -47,7 +47,7 @@ export default function PostEditor({ onSave }) {
       excerpt,
       slug: slugify(title),
       createdAt: new Date().toISOString(),
-      author: "Anonymous",
+      author: currentUser?.name || "Anonymous"
     };
 
     onSave(post);
@@ -60,7 +60,7 @@ export default function PostEditor({ onSave }) {
 
   return (
     <>
-      <Header />
+      <Header currentUser={currentUser} />
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-8 px-4">
         <form
           onSubmit={handleSubmit}
