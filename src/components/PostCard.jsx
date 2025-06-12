@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { AuthorBadge } from "./AuthorBadge";
 
 export default function PostCard({ post }) {
   const thumbnailSrc =
@@ -7,8 +8,6 @@ export default function PostCard({ post }) {
       : post.thumbnail
       ? URL.createObjectURL(post.thumbnail)
       : null;
-
-  const date = post.createdAt ? new Date(post.createdAt) : new Date();
 
   return (
     <div className="shadow-lg md:shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden min-h-[10rem] md:h-40 cursor-pointer mb-14">
@@ -40,11 +39,22 @@ export default function PostCard({ post }) {
             </p>
 
             <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 flex justify-between items-center">
-                <div>
-                <span>By {post.author || "Anonymous"}</span>
-                <span className="mx-2">·</span>
-                <span>{date.toLocaleDateString()}</span>
+               <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                    <div className="relative inline-block">
+                        <span className="group relative text-gray-900 dark:text-white">
+                        {post.author?.name || post.author || "Anonymous"}
+                        </span>
+                        <AuthorBadge author={post.author} />
+                    </div>
+                    
+                    <span>·</span>
+                    <span>{new Date(post.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                    })}</span>
                 </div>
+
+
                 {post.slug && (
                 <Link to={`/post/${post.slug}`} className="text-blue-500 hover:underline">
                     Read more

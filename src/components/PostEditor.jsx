@@ -58,7 +58,10 @@ export default function PostEditor({ onSave, currentUser }) {
       excerpt,
       slug: slugify(title),
       createdAt: new Date().toISOString(),
-      author: currentUser?.name || "Anonymous",
+      author: {
+        name: currentUser?.name || "Anonymous",
+        bio: currentUser?.bio || "No bio available"
+      },
       category,
     };
 

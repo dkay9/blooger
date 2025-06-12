@@ -6,14 +6,17 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import PostEditor from './components/PostEditor';
 import { ThemeProvider } from './context/ThemeContext';
+import Profile from './pages/Profile';
+
 
 function App() {
+  const [currentUser] = useState({ name: "John Doe", email: "john@example.com" });
   const [posts, setPosts] = useState([]);
 
   const mockUser = {
     name: "Jane Doe",
     email: "jane@example.com",
-    role: "writer"
+    bio: "Writer and tech enthusiast"
   };
 
   const handleSavePost = (newPost) => {
@@ -40,6 +43,9 @@ function App() {
           <Route path="/post/:id" element={<Post />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile currentUser={currentUser} allPosts={posts} />}
+/>
+
         </Routes>
       </ThemeProvider>
     </Router>
