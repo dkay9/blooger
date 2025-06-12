@@ -5,8 +5,19 @@ import "../styles/quillOverrides.css";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 
+const categories = [
+  "Technology",
+  "Business",
+  "Lifestyle",
+  "Health",
+  "Education",
+  "Travel",
+  "Other"
+];
+
 export default function PostEditor({ onSave, currentUser }) {
   const [title, setTitle] = useState("");
+  const [category, setCategory] = useState(categories[0]); 
   const [content, setContent] = useState("");
   const [thumbnail, setThumbnail] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -47,7 +58,8 @@ export default function PostEditor({ onSave, currentUser }) {
       excerpt,
       slug: slugify(title),
       createdAt: new Date().toISOString(),
-      author: currentUser?.name || "Anonymous"
+      author: currentUser?.name || "Anonymous",
+      category,
     };
 
     onSave(post);
@@ -82,6 +94,24 @@ export default function PostEditor({ onSave, currentUser }) {
               theme="snow"
             />
           </div>
+
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Category
+            </label>
+            <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+            >
+                {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                    {cat}
+                </option>
+                ))}
+            </select>
+          </div>
+
 
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
