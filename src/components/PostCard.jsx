@@ -15,7 +15,7 @@ export default function PostCard({ post }) {
   });
 
   return (
-    <div className="relative shadow-lg md:shadow-sm hover:shadow-lg transition-shadow duration-300  min-h-[10rem] md:h-40 cursor-pointer mb-14">
+    <div className="relative shadow-lg md:shadow-sm transition-shadow duration-300  min-h-[10rem] md:h-40 cursor-pointer mb-14">
       <div className="flex flex-col md:flex-row md:items-center md:gap-x-6">
         {thumbnailSrc && (
           <Link
@@ -44,9 +44,9 @@ export default function PostCard({ post }) {
           <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 flex justify-between items-center">
             <div className="flex items-center gap-2 relative group">
               {/* Author name triggers badge */}
-              <span className="text-black dark:text-white hover:underline relative z-10">
+              <Link  to={`/profile/`} className="text-black dark:text-white hover:underline relative z-10">
                 {post.author || "Anonymous"}
-              </span>
+              </Link>
 
               {/* Medium-style AuthorBadge */}
               <AuthorBadge name={post.author || "Anonymous"} bio="A passionate writer" />
