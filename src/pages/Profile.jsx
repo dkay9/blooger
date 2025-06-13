@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 
-export default function Profile({ posts }) {
+export default function Profile({ allPosts }) {
   const { username } = useParams();
 
   // Mock author data
@@ -18,8 +18,8 @@ export default function Profile({ posts }) {
   };
 
   const author = authorInfo[username];
-  const userPosts = posts?.filter((p) =>
-    p.author?.toLowerCase().replace(/\s+/g, "-") === username
+  const userPosts = allPosts?.filter((p) =>
+  p.author?.toLowerCase().replace(/\s+/g, "-") === username
   );
 
   if (!author) {

@@ -10,7 +10,7 @@ import Profile from './pages/Profile';
 
 
 function App() {
-  const [currentUser] = useState({ name: "John Doe", email: "john@example.com" });
+  // const [currentUser] = useState({ name: "John Doe", email: "john@example.com" });
   const [posts, setPosts] = useState([]);
 
   const mockUser = {
@@ -43,9 +43,7 @@ function App() {
           <Route path="/post/:id" element={<Post />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile currentUser={currentUser} allPosts={posts} />}
-/>
-
+          <Route path="/profile/:username" element={<Profile allPosts={posts} />} />
         </Routes>
       </ThemeProvider>
     </Router>
