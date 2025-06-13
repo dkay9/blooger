@@ -40,10 +40,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Home posts={posts} />} />
           <Route path="/editor" element={<PostEditor onSave={handleSavePost} currentUser={mockUser}/>} />
-          <Route path="/post/:id" element={<Post />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile/:username" element={<Profile allPosts={posts} />} />
+          <Route path="/post/:slug" element={<Post posts={posts} />} />
         </Routes>
       </ThemeProvider>
     </Router>
