@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import Header from "../components/Header";
+import PostCard from "../components/PostCard";
 
 export default function Profile({ allPosts }) {
   const { username } = useParams();
@@ -43,17 +44,17 @@ export default function Profile({ allPosts }) {
           </div>
         </div>
 
-        <h2 className="text-xl font-semibold mb-4">Posts by {author.name}</h2>
+        <h2 className="text-xl font-semibold mb-4 mt-20">Posts</h2>
         <div className="space-y-4">
           {userPosts.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400">No posts by this author.</p>
+            <p className="text-gray-500 dark:text-gray-400">No posts yet.</p>
           ) : (
             userPosts.map((post, index) => (
-              <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded shadow">
-                <h3 className="text-lg font-semibold">{post.title}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {post.excerpt}
-                </p>
+              <div key={index} className="space-y-6">
+                  {userPosts.map((post, index) => (
+                  <PostCard key={index} post={post} />
+                ))}
+
               </div>
             ))
           )}

@@ -37,7 +37,7 @@ export default function Header() {
   };
 
   return (
-    <header className="relative bg-white dark:bg-gray-800 text-black dark:text-white shadow px-4 py-3">
+    <header className="relative bg-white dark:bg-gray-800 text-black dark:text-white shadow px-4 md:px-20 py-3">
       <div className="flex items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/" className="text-2xl font-bold whitespace-nowrap">
