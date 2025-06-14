@@ -30,5 +30,5 @@
 .dark .ql-toolbar .ql-stroke {
   color: white;
   stroke: white;
-  fill: white;
+  /* fill: white; */
 }
