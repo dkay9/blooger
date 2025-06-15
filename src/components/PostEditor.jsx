@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "../styles/quillOverrides.css";
@@ -12,16 +12,17 @@ const categories = [
   "Health",
   "Education",
   "Travel",
-  "Other"
+  "Other",
 ];
 
 export default function PostEditor({ onSave, currentUser }) {
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState(categories[0]); 
+  const [category, setCategory] = useState(categories[0]);
   const [content, setContent] = useState("");
   const [thumbnail, setThumbnail] = useState(null);
   const [preview, setPreview] = useState(null);
   const navigate = useNavigate();
+  const quillRef = useRef();
 
   function handleThumbnailChange(e) {
     const file = e.target.files[0];
@@ -46,6 +47,51 @@ export default function PostEditor({ onSave, currentUser }) {
       .replace(/-+$/, "");
   }
 
+  async function handleImageUpload() {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "blooger_posts"); // 🔁 Replace with your actual preset
+
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/dheekay11/image/upload", // 🔁 Replace with your Cloudinary name
+        { method: "POST", body: formData }
+      );
+
+      const data = await res.json();
+      const imageUrl = data.secure_url;
+
+      const editor = quillRef.current.getEditor();
+      const range = editor.getSelection();
+      editor.insertEmbed(range.index, "image", imageUrl);
+    };
+  }
+
+  const modules = {
+    toolbar: {
+      container: [
+        [{ header: [1, 2, 3, false] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["blockquote", "code-block"],
+        ["link", "image"], // enable image
+        [{ color: [] }, { background: [] }],
+        ["clean"],
+      ],
+      handlers: {
+        image: handleImageUpload, // custom handler
+      },
+    },
+  };
+
   function handleSubmit(e) {
     e.preventDefault();
 
@@ -60,7 +106,7 @@ export default function PostEditor({ onSave, currentUser }) {
       createdAt: new Date().toISOString(),
       author: {
         name: currentUser?.name || "Anonymous",
-        bio: currentUser?.bio || "No bio available"
+        bio: currentUser?.bio || "No bio available",
       },
       category,
     };
@@ -90,31 +136,33 @@ export default function PostEditor({ onSave, currentUser }) {
             required
           />
 
-          <div className="quill-wrapper bg-white dark:bg-gray-700 rounded">
+          <div className="bg-white dark:bg-gray-700 rounded min-h-[200px]">
             <ReactQuill
+              ref={quillRef}
               value={content}
               onChange={setContent}
               theme="snow"
+              modules={modules}
             />
           </div>
 
+
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-                Category
+              Category
             </label>
             <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded dark:border-gray-700 dark:bg-gray-700 dark:text-white"
             >
-                {categories.map((cat) => (
+              {categories.map((cat) => (
                 <option key={cat} value={cat}>
-                    {cat}
+                  {cat}
                 </option>
-                ))}
+              ))}
             </select>
           </div>
-
 
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">

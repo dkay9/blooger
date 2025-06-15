@@ -32,3 +32,16 @@
   stroke: white;
   /* fill: white; */
 }
+.ql-container {
+  min-height: 200px;
+  overflow-y: auto;
+}
+
+body.dark .ql-container {
+  background-color: #1f2937; /* gray-800 */
+  color: white;
+}
+
+body.dark .ql-toolbar {
+  background-color: #374151;
+}
