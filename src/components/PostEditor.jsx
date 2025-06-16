@@ -1,9 +1,13 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "../styles/quillOverrides.css";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
+import DOMPurify from "dompurify";
+
+const CLOUD_NAME = "dheekay11"; // e.g., dkay9
+const UPLOAD_PRESET = "blooger_posts"; // e.g., blooger_preset
 
 const categories = [
   "Technology",
@@ -12,8 +16,62 @@ const categories = [
   "Health",
   "Education",
   "Travel",
-  "Other",
+  "Other"
 ];
+
+// Static formats
+const formats = [
+  "header", "bold", "italic", "underline", "strike",
+  "list", "bullet", "blockquote", "code-block",
+  "link", "image"
+];
+
+// Image upload handler (Cloudinary)
+async function handleImageUpload(quillRef) {
+  const input = document.createElement("input");
+  input.setAttribute("type", "file");
+  input.setAttribute("accept", "image/*");
+  input.click();
+
+  input.onchange = async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+      { method: "POST", body: formData }
+    );
+
+    const data = await res.json();
+    const imageUrl = data.secure_url;
+
+    const editor = quillRef.current.getEditor();
+    const range = editor.getSelection(true);
+    editor.insertEmbed(range.index, "image", imageUrl);
+    editor.setSelection(range.index + 1);
+  };
+}
+
+// Stable modules
+const getModules = (quillRef) => ({
+  toolbar: {
+    container: [
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["blockquote", "code-block"],
+      ["link", "image"],
+      ["clean"]
+    ],
+    handlers: {
+      image: () => handleImageUpload(quillRef)
+    }
+  }
+});
 
 export default function PostEditor({ onSave, currentUser }) {
   const [title, setTitle] = useState("");
@@ -22,7 +80,9 @@ export default function PostEditor({ onSave, currentUser }) {
   const [thumbnail, setThumbnail] = useState(null);
   const [preview, setPreview] = useState(null);
   const navigate = useNavigate();
-  const quillRef = useRef();
+
+  const quillRef = useRef(null);
+  const modules = useMemo(() => getModules(quillRef), [quillRef]);
 
   function handleThumbnailChange(e) {
     const file = e.target.files[0];
@@ -47,68 +107,24 @@ export default function PostEditor({ onSave, currentUser }) {
       .replace(/-+$/, "");
   }
 
-  async function handleImageUpload() {
-    const input = document.createElement("input");
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/*");
-    input.click();
-
-    input.onchange = async () => {
-      const file = input.files[0];
-      if (!file) return;
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "blooger_posts"); // 🔁 Replace with your actual preset
-
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/dheekay11/image/upload", // 🔁 Replace with your Cloudinary name
-        { method: "POST", body: formData }
-      );
-
-      const data = await res.json();
-      const imageUrl = data.secure_url;
-
-      const editor = quillRef.current.getEditor();
-      const range = editor.getSelection();
-      editor.insertEmbed(range.index, "image", imageUrl);
-    };
-  }
-
-  const modules = {
-    toolbar: {
-      container: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "underline", "strike"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        ["blockquote", "code-block"],
-        ["link", "image"], // enable image
-        [{ color: [] }, { background: [] }],
-        ["clean"],
-      ],
-      handlers: {
-        image: handleImageUpload, // custom handler
-      },
-    },
-  };
-
   function handleSubmit(e) {
     e.preventDefault();
 
     const excerpt = stripHtml(content).slice(0, 100) + "...";
+    const safeContent = DOMPurify.sanitize(content);
 
     const post = {
       title,
-      content,
+      content: safeContent,
       thumbnail,
       excerpt,
       slug: slugify(title),
       createdAt: new Date().toISOString(),
       author: {
         name: currentUser?.name || "Anonymous",
-        bio: currentUser?.bio || "No bio available",
+        bio: currentUser?.bio || "No bio available"
       },
-      category,
+      category
     };
 
     onSave(post);
@@ -136,16 +152,16 @@ export default function PostEditor({ onSave, currentUser }) {
             required
           />
 
-          <div className="bg-white dark:bg-gray-700 rounded min-h-[200px]">
+          <div className="quill-wrapper bg-white dark:bg-gray-700 rounded">
             <ReactQuill
               ref={quillRef}
               value={content}
               onChange={setContent}
               theme="snow"
               modules={modules}
+              formats={formats}
             />
           </div>
-
 
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">

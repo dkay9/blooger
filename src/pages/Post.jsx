@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import Header from "../components/Header";
+import DOMPurify from "dompurify"
 
 export default function Post({ posts }) {
   const { slug } = useParams();
@@ -39,9 +40,12 @@ export default function Post({ posts }) {
                 />
             )}
 
-            <div className="prose prose-lg dark:prose-invert">
-                {post.content || "No content available."}
-            </div>
+            <div
+                className="prose prose-lg dark:prose-invert"
+                dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(post.content),
+                }}
+            ></div>
         </div>
     </div>
   );
