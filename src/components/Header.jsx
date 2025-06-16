@@ -8,7 +8,6 @@ import {
   X,
   LogIn,
   LogOut,
-  LayoutDashboard,
   User,
   Home // ✅ Add Home icon import
 } from "lucide-react";
@@ -72,9 +71,6 @@ export default function Header() {
                 <Link to="/" title="Home" className="hover:text-blue-500">
                   <Home className="w-5 h-5" />
                 </Link>
-                <Link to="/dashboard" title="Dashboard" className="hover:text-blue-500">
-                  <LayoutDashboard className="w-5 h-5" />
-                </Link>
                 <Link to="/editor" title="New Post" className="hover:text-blue-500">
                   <PencilLine className="w-5 h-5" />
                 </Link>
@@ -123,10 +119,6 @@ export default function Header() {
                   <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
                     <Home className="w-4 h-4" />
                     Home
-                  </Link>
-                  <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
-                    <LayoutDashboard className="w-4 h-4" />
-                    Dashboard
                   </Link>
                   <Link to="/editor" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
                     <PencilLine className="w-4 h-4" />
