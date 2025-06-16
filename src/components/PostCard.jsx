@@ -44,7 +44,7 @@ export default function PostCard({ post }) {
         )}
 
         <div className="p-4 flex flex-col justify-between flex-1">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white line-clamp-2">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white line-clamp-2 capitalize">
             {post.title}
           </h2>
 

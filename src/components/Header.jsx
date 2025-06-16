@@ -9,7 +9,7 @@ import {
   LogIn,
   LogOut,
   User,
-  Home // ✅ Add Home icon import
+  Home
 } from "lucide-react";
 import { isLoggedIn, logout } from "../utils/auth";
 import { useState } from "react";
