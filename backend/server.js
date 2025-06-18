@@ -11,7 +11,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "http://localhost:3000", // adjust if your frontend runs elsewhere
+  origin: ["http://localhost:3000", "http://localhost:5000"], // adjust if your frontend runs elsewhere
   credentials: true
 }));
 app.use(express.json());
