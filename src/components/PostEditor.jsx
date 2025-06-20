@@ -7,8 +7,8 @@ import Header from "./Header";
 import DOMPurify from "dompurify";
 import axios from "axios";
 
-const CLOUD_NAME = "dheekay11"; // your Cloudinary cloud name
-const UPLOAD_PRESET = "blooger_posts"; // your upload preset
+const CLOUD_NAME = "dheekay11";
+const UPLOAD_PRESET = "blooger_posts";
 
 const categories = [
   "Technology",
@@ -77,16 +77,12 @@ export default function PostEditor({ currentUser }) {
   const [content, setContent] = useState("");
   const [thumbnail, setThumbnail] = useState(null);
   const [preview, setPreview] = useState(null);
-  const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
   const quillRef = useRef(null);
   const modules = useMemo(() => getModules(quillRef), [quillRef]);
-
-  function handleThumbnailChange(e) {
-    const file = e.target.files[0];
-    setThumbnail(file);
-    setPreview(file ? URL.createObjectURL(file) : null);
-  }
 
   function stripHtml(html) {
     const tmp = document.createElement("div");
@@ -105,8 +101,27 @@ export default function PostEditor({ currentUser }) {
       .replace(/-+$/, "");
   }
 
+  function handleThumbnailChange(e) {
+    const file = e.target.files[0];
+    setThumbnail(file);
+    setPreview(file ? URL.createObjectURL(file) : null);
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
+
+    const newErrors = {};
+    if (!title.trim()) newErrors.title = "Title is required.";
+    if (!stripHtml(content).trim()) newErrors.content = "Content cannot be empty.";
+    if (!categories.includes(category)) newErrors.category = "Invalid category selected.";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    setLoading(true);
 
     const excerpt = stripHtml(content).slice(0, 100) + "...";
     const safeContent = DOMPurify.sanitize(content);
@@ -115,16 +130,22 @@ export default function PostEditor({ currentUser }) {
 
     let thumbnailUrl = "";
     if (thumbnail) {
-      const formData = new FormData();
-      formData.append("file", thumbnail);
-      formData.append("upload_preset", UPLOAD_PRESET);
+      try {
+        const formData = new FormData();
+        formData.append("file", thumbnail);
+        formData.append("upload_preset", UPLOAD_PRESET);
 
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-        { method: "POST", body: formData }
-      );
-      const data = await res.json();
-      thumbnailUrl = data.secure_url;
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+          { method: "POST", body: formData }
+        );
+        const data = await res.json();
+        thumbnailUrl = data.secure_url;
+      } catch {
+        setLoading(false);
+        setErrors({ thumbnail: "Image upload failed." });
+        return;
+      }
     }
 
     try {
@@ -151,8 +172,10 @@ export default function PostEditor({ currentUser }) {
       setPreview(null);
       navigate("/");
     } catch (err) {
+      setErrors({ submit: "Failed to create post. Please try again." });
       console.error("Post creation error:", err);
-      alert("Failed to create post");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -170,8 +193,8 @@ export default function PostEditor({ currentUser }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-            required
           />
+          {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
 
           <div className="quill-wrapper bg-white dark:bg-gray-700 rounded">
             <ReactQuill
@@ -183,6 +206,7 @@ export default function PostEditor({ currentUser }) {
               formats={formats}
             />
           </div>
+          {errors.content && <p className="text-sm text-red-500">{errors.content}</p>}
 
           <div>
             <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -194,11 +218,10 @@ export default function PostEditor({ currentUser }) {
               className="w-full p-2 border border-gray-300 rounded dark:border-gray-700 dark:bg-gray-700 dark:text-white"
             >
               {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
+                <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
+            {errors.category && <p className="text-sm text-red-500">{errors.category}</p>}
           </div>
 
           <div>
@@ -218,14 +241,17 @@ export default function PostEditor({ currentUser }) {
                 className="h-32 mt-2 rounded object-cover"
               />
             )}
+            {errors.thumbnail && <p className="text-sm text-red-500">{errors.thumbnail}</p>}
           </div>
 
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            disabled={loading}
+            className={`bg-blue-500 text-white px-4 py-2 rounded ${loading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-600"}`}
           >
-            Save Post
+            {loading ? "Saving..." : "Save Post"}
           </button>
+          {errors.submit && <p className="text-sm text-red-500 mt-2">{errors.submit}</p>}
         </form>
       </div>
     </>

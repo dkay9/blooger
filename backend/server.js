@@ -13,7 +13,12 @@ const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors({
+  origin: "http://localhost:3000", // React frontend
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 app.use(express.json());
 app.use(cookieParser());
 
