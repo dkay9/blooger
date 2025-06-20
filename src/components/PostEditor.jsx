@@ -5,9 +5,10 @@ import "../styles/quillOverrides.css";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import DOMPurify from "dompurify";
+import axios from "axios";
 
-const CLOUD_NAME = "dheekay11"; // e.g., dkay9
-const UPLOAD_PRESET = "blooger_posts"; // e.g., blooger_preset
+const CLOUD_NAME = "dheekay11"; // your Cloudinary cloud name
+const UPLOAD_PRESET = "blooger_posts"; // your upload preset
 
 const categories = [
   "Technology",
@@ -19,14 +20,12 @@ const categories = [
   "Other"
 ];
 
-// Static formats
 const formats = [
   "header", "bold", "italic", "underline", "strike",
   "list", "bullet", "blockquote", "code-block",
   "link", "image"
 ];
 
-// Image upload handler (Cloudinary)
 async function handleImageUpload(quillRef) {
   const input = document.createElement("input");
   input.setAttribute("type", "file");
@@ -56,7 +55,6 @@ async function handleImageUpload(quillRef) {
   };
 }
 
-// Stable modules
 const getModules = (quillRef) => ({
   toolbar: {
     container: [
@@ -73,7 +71,7 @@ const getModules = (quillRef) => ({
   }
 });
 
-export default function PostEditor({ onSave, currentUser }) {
+export default function PostEditor({ currentUser }) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState(categories[0]);
   const [content, setContent] = useState("");
@@ -107,32 +105,55 @@ export default function PostEditor({ onSave, currentUser }) {
       .replace(/-+$/, "");
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     const excerpt = stripHtml(content).slice(0, 100) + "...";
     const safeContent = DOMPurify.sanitize(content);
+    const slug = slugify(title);
+    const token = localStorage.getItem("token");
 
-    const post = {
-      title,
-      content: safeContent,
-      thumbnail,
-      excerpt,
-      slug: slugify(title),
-      createdAt: new Date().toISOString(),
-      author: {
-        name: currentUser?.name || "Anonymous",
-        bio: currentUser?.bio || "No bio available"
-      },
-      category
-    };
+    let thumbnailUrl = "";
+    if (thumbnail) {
+      const formData = new FormData();
+      formData.append("file", thumbnail);
+      formData.append("upload_preset", UPLOAD_PRESET);
 
-    onSave(post);
-    setTitle("");
-    setContent("");
-    setThumbnail(null);
-    setPreview(null);
-    navigate("/");
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        { method: "POST", body: formData }
+      );
+      const data = await res.json();
+      thumbnailUrl = data.secure_url;
+    }
+
+    try {
+      await axios.post(
+        "http://localhost:5050/api/posts",
+        {
+          title,
+          content: safeContent,
+          slug,
+          excerpt,
+          thumbnail: thumbnailUrl,
+          category
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        }
+      );
+
+      setTitle("");
+      setContent("");
+      setThumbnail(null);
+      setPreview(null);
+      navigate("/");
+    } catch (err) {
+      console.error("Post creation error:", err);
+      alert("Failed to create post");
+    }
   }
 
   return (
