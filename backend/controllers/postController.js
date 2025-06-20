@@ -2,8 +2,18 @@ const Post = require("../models/Post");
 
 exports.createPost = async (req, res) => {
   try {
-    const { title, content, author, slug } = req.body;
-    const newPost = new Post({ title, content, author, slug });
+    const { title, content, slug, excerpt, thumbnail, category } = req.body;
+
+    const newPost = new Post({
+      title,
+      content,
+      slug,
+      excerpt,
+      thumbnail,
+      category,
+      author: req.user.id, // 👈 Automatically from token
+    });
+
     await newPost.save();
     res.status(201).json(newPost);
   } catch (err) {
@@ -11,14 +21,23 @@ exports.createPost = async (req, res) => {
   }
 };
 
+
 exports.getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find().sort({ createdAt: -1 });
-    res.json(posts);
+    const posts = await Post.find().sort({ createdAt: -1 }).lean(); // lean() returns plain JS objects
+
+    const postsWithCounts = posts.map((post) => ({
+      ...post,
+      likeCount: post.likes?.length || 0,
+      commentCount: post.comments?.length || 0,
+    }));
+
+    res.json(postsWithCounts);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 exports.getPostBySlug = async (req, res) => {
   try {
