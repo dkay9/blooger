@@ -1,38 +1,35 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Home from './pages/Home';
 import Post from './pages/Post';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
+import Signup from './pages/Signup';
 import PostEditor from './components/PostEditor';
 import { ThemeProvider } from './context/ThemeContext';
 import Profile from './pages/Profile';
+import axios from 'axios';
 
 function App() {
   const [posts, setPosts] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
-  const mockUser = {
-    name: "Jane Doe",
-    email: "jane@example.com",
-    bio: "Writer and tech enthusiast"
-  };
+  // Load user from token on app load
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      axios
+        .get("http://localhost:5050/api/auth/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => setCurrentUser(res.data))
+        .catch(() => setCurrentUser(null));
+    }
+  }, []);
 
   const handleSavePost = (newPost) => {
-    const slug = newPost.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-    const createdAt = new Date().toISOString();
-    const author = mockUser.name;
-
-    const post = {
-      ...newPost,
-      slug,
-      createdAt,
-      author,
-    };
-
-    setPosts((prev) => [post, ...prev]);
+    setPosts((prev) => [newPost, ...prev]);
   };
 
-  // Helper to slugify username
   const slugify = (str) =>
     str.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
 
@@ -41,20 +38,32 @@ function App() {
       <ThemeProvider>
         <Routes>
           <Route path="/" element={<Home posts={posts} />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+
+          {/* Protect the post editor: only logged-in users can access */}
           <Route
             path="/editor"
-            element={<PostEditor onSave={handleSavePost} currentUser={mockUser} />}
+            element={
+              currentUser ? (
+                <PostEditor currentUser={currentUser} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
           />
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
 
-          {/* 🔁 New redirect route for /profile */}
           <Route
             path="/profile"
-            element={<Navigate to={`/profile/${slugify(mockUser.name)}`} replace />}
+            element={
+              currentUser ? (
+                <Navigate to={`/profile/${slugify(currentUser.name)}`} replace />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
           />
 
-          {/* Dynamic profile route */}
           <Route
             path="/profile/:username"
             element={<Profile allPosts={posts} />}

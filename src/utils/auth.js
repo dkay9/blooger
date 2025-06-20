@@ -1,6 +1,9 @@
-// utils/auth.js
 export function isLoggedIn() {
-  return true; // or true
+  return !!localStorage.getItem("token");
+}
+
+export function getToken() {
+  return localStorage.getItem("token");
 }
 
 export function logout() {
