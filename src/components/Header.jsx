@@ -9,16 +9,16 @@ import {
   LogIn,
   LogOut,
   User,
-  Home
+  Home,
 } from "lucide-react";
-import { isLoggedIn, logout } from "../utils/auth";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function Header() {
   const navigate = useNavigate();
-  const loggedIn = isLoggedIn();
+  const { currentUser, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -44,10 +44,7 @@ export default function Header() {
         </Link>
 
         {/* Search Bar */}
-        <form
-          onSubmit={handleSearch}
-          className="flex-grow max-w-md mx-2"
-        >
+        <form onSubmit={handleSearch} className="flex-grow max-w-md mx-2">
           <input
             type="text"
             placeholder="Search articles..."
@@ -66,7 +63,7 @@ export default function Header() {
 
           {/* Desktop Nav */}
           <nav className="hidden sm:flex items-center gap-4">
-            {loggedIn ? (
+            {currentUser ? (
               <>
                 <Link to="/" title="Home" className="hover:text-blue-500">
                   <Home className="w-5 h-5" />
@@ -89,15 +86,20 @@ export default function Header() {
                 </button>
               </>
             ) : (
-              <Link to="/login" className="hover:text-blue-500">Login</Link>
+              <Link to="/login" className="hover:text-blue-500">
+                Login
+              </Link>
             )}
-
             <button
               onClick={toggleTheme}
               className="text-gray-600 dark:text-white"
               title="Toggle Theme"
             >
-              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {theme === "dark" ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
             </button>
           </nav>
         </div>
@@ -114,13 +116,21 @@ export default function Header() {
             className="absolute top-full left-0 w-full z-50 bg-white dark:bg-gray-800 p-4 shadow-md border-t dark:border-gray-700"
           >
             <div className="flex flex-col gap-3 text-sm">
-              {loggedIn ? (
+              {currentUser ? (
                 <>
-                  <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
+                  <Link
+                    to="/"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2"
+                  >
                     <Home className="w-4 h-4" />
                     Home
                   </Link>
-                  <Link to="/editor" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
+                  <Link
+                    to="/editor"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2"
+                  >
                     <PencilLine className="w-4 h-4" />
                     Write Post
                   </Link>
@@ -132,7 +142,11 @@ export default function Header() {
                     <User className="w-5 h-5" />
                     Profile
                   </Link>
-                  <Link to="/notifications" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
+                  <Link
+                    to="/notifications"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2"
+                  >
                     <Bell className="w-4 h-4" />
                     Notifications
                   </Link>
@@ -148,7 +162,11 @@ export default function Header() {
                   </button>
                 </>
               ) : (
-                <Link to="/login" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
+                <Link
+                  to="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2"
+                >
                   <LogIn className="w-4 h-4" />
                   Login
                 </Link>
@@ -161,7 +179,11 @@ export default function Header() {
                 }}
                 className="flex items-center gap-2 text-gray-600 dark:text-white"
               >
-                {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {theme === "dark" ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
                 Toggle Theme
               </button>
             </div>

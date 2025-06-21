@@ -20,6 +20,7 @@
     "mongoose": "^8.15.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.5.2",
     "react-quill": "^2.0.0",
     "react-router-dom": "^7.6.2",
     "react-scripts": "5.0.1",

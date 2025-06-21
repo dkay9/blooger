@@ -18,9 +18,9 @@ export default function Home({ posts, currentUser }) {
 
   // Filter posts by selected category
   const filteredPosts =
-    selectedCategory === "All"
-      ? posts
-      : posts.filter((post) => post.category === selectedCategory);
+  selectedCategory === "All"
+    ? posts || []
+    : (posts || []).filter((post) => post.category === selectedCategory);
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
