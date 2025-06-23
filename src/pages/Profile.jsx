@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import PostCard from "../components/PostCard";
 import axios from "axios";
 import { Edit, Save, Camera, X } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 const CLOUD_NAME = "dheekay11";
 const UPLOAD_PRESET = "blooger_posts";
@@ -89,7 +90,7 @@ export default function Profile({ allPosts = [] }) {
       setProfileUser(res.data);
       setShowBioModal(false);
       setShowImageModal(false);
-      alert("Profile updated!");
+      toast.success("Profile updated")
     } catch (err) {
       alert("Failed to update profile.");
       console.error(err);
