@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import DOMPurify from "dompurify";
 import axios from "axios";
+import { usePosts } from "../context/PostContext";
 
 const CLOUD_NAME = "dheekay11";
 const UPLOAD_PRESET = "blooger_posts";
@@ -83,6 +84,7 @@ export default function PostEditor({ currentUser }) {
   const navigate = useNavigate();
   const quillRef = useRef(null);
   const modules = useMemo(() => getModules(quillRef), [quillRef]);
+  const { addPost } = usePosts(); // Grab addPost from context
 
   function stripHtml(html) {
     const tmp = document.createElement("div");
@@ -113,6 +115,7 @@ export default function PostEditor({ currentUser }) {
     const newErrors = {};
     if (!title.trim()) newErrors.title = "Title is required.";
     if (!stripHtml(content).trim()) newErrors.content = "Content cannot be empty.";
+    if (!thumbnail) newErrors.thumbnail = "Thumbnail is required.";
     if (!categories.includes(category)) newErrors.category = "Invalid category selected.";
 
     if (Object.keys(newErrors).length > 0) {
@@ -149,7 +152,7 @@ export default function PostEditor({ currentUser }) {
     }
 
     try {
-      await axios.post(
+      const res = await axios.post(
         "http://localhost:5050/api/posts",
         {
           title,
@@ -166,10 +169,16 @@ export default function PostEditor({ currentUser }) {
         }
       );
 
+      // Update context state with new post
+      addPost(res.data);
+
+      // Reset form
       setTitle("");
       setContent("");
       setThumbnail(null);
       setPreview(null);
+
+      // Navigate to homepage
       navigate("/");
     } catch (err) {
       setErrors({ submit: "Failed to create post. Please try again." });

@@ -6,6 +6,7 @@ import Signup from './pages/Signup';
 import PostEditor from './components/PostEditor';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { PostProvider } from './context/PostContext';
 import Profile from './pages/Profile';
 import { Toaster } from 'react-hot-toast';
 
@@ -56,10 +57,12 @@ export default function App() {
   return (
     <Router>
       <AuthProvider>
-        <ThemeProvider>
-          <Toaster position="top-right" />
-          <AppRoutes />
-        </ThemeProvider>
+        <PostProvider>
+          <ThemeProvider>
+            <Toaster position="top-right" />
+            <AppRoutes />
+          </ThemeProvider>
+        </PostProvider>
       </AuthProvider>
     </Router>
   );
