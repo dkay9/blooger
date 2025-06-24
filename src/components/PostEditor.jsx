@@ -92,16 +92,14 @@ export default function PostEditor({ currentUser }) {
     return tmp.textContent || tmp.innerText || "";
   }
 
-  function slugify(text) {
-    return text
-      .toString()
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^\w-]+/g, "")
-      .replace(/--+/g, "-")
-      .replace(/^-+/, "")
-      .replace(/-+$/, "");
-  }
+  const slugify = (str) =>
+  String(str || "")  // ensures str is a string, even if null/undefined
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]/g, "")
+    .replace(/--+/g, "-")
+    .replace(/^-+/, "")
+    .replace(/-+$/, "");
 
   function handleThumbnailChange(e) {
     const file = e.target.files[0];
@@ -128,7 +126,7 @@ export default function PostEditor({ currentUser }) {
 
     const excerpt = stripHtml(content).slice(0, 100) + "...";
     const safeContent = DOMPurify.sanitize(content);
-    const slug = slugify(title);
+    const slug = `${slugify(title)}-${Date.now()}`;
     const token = localStorage.getItem("token");
 
     let thumbnailUrl = "";

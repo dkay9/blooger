@@ -23,7 +23,9 @@ export default function PostCard({ post }) {
   const slugify = (str) =>
     str?.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
 
-  const authorSlug = slugify(post.author || "anonymous");
+  const authorName = typeof post.author === "object" ? post.author.name : post.author;
+  const authorSlug = slugify(authorName || "anonymous");
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -77,12 +79,8 @@ export default function PostCard({ post }) {
     }
   };
 
-  const thumbnailSrc =
-    typeof post.thumbnail === "string"
-      ? post.thumbnail
-      : post.thumbnail
-      ? URL.createObjectURL(post.thumbnail)
-      : null;
+  const thumbnailSrc = post.thumbnail || null;
+
 
   return (
     <div className="relative shadow-lg md:shadow-sm transition-shadow duration-300 min-h-[10rem] md:h-40 cursor-default mb-14 overflow-visible">

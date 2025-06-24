@@ -1,3 +1,4 @@
+import { usePosts } from "../context/PostContext";
 import Header from "../components/Header";
 import PostCard from "../components/PostCard";
 import { useState } from "react";
@@ -13,14 +14,14 @@ const categories = [
   "Other"
 ];
 
-export default function Home({ posts, currentUser }) {
+export default function Home({ currentUser }) {
+  const { posts, loading } = usePosts(); // ✅ Use context
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  // Filter posts by selected category
   const filteredPosts =
-  selectedCategory === "All"
-    ? posts || []
-    : (posts || []).filter((post) => post.category === selectedCategory);
+    selectedCategory === "All"
+      ? posts || []
+      : (posts || []).filter((post) => post.category === selectedCategory);
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
@@ -29,7 +30,6 @@ export default function Home({ posts, currentUser }) {
       <main className="max-w-3xl mx-auto p-4 space-y-6">
         <h1 className="text-2xl font-bold">Latest Posts</h1>
 
-        {/* Category Filter */}
         <div className="flex flex-wrap gap-2 my-4">
           {categories.map((cat) => (
             <button
@@ -46,8 +46,12 @@ export default function Home({ posts, currentUser }) {
           ))}
         </div>
 
-        {filteredPosts.length === 0 ? (
-          <p className="text-center text-gray-500 dark:text-gray-400">No posts in this category.</p>
+        {loading ? (
+          <p className="text-center text-gray-400">Loading...</p>
+        ) : filteredPosts.length === 0 ? (
+          <p className="text-center text-gray-500 dark:text-gray-400">
+            No posts in this category.
+          </p>
         ) : (
           <div className="space-y-4">
             {filteredPosts.map((post, index) => (

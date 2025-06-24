@@ -27,7 +27,8 @@ exports.createPost = async (req, res) => {
     });
 
     await newPost.save();
-    res.status(201).json(newPost);
+    const populatedPost = await Post.findById(newPost._id).populate("author", "name");
+    res.status(201).json(populatedPost);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
