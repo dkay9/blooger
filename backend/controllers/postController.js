@@ -27,7 +27,7 @@ exports.createPost = async (req, res) => {
     });
 
     await newPost.save();
-    const populatedPost = await Post.findById(newPost._id).populate("author", "name");
+    const populatedPost = await Post.findById(newPost._id).populate("author", "name bio");
     res.status(201).json(populatedPost);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -38,7 +38,7 @@ exports.getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
       .sort({ createdAt: -1 })
-      .populate("author", "name") // Populate just the author's name
+      .populate("author", "name bio") // Populate just the author's name
       .lean(); // lean() makes it return plain JS objects
 
     const postsWithCounts = posts.map((post) => ({
@@ -58,7 +58,7 @@ exports.getPostBySlug = async (req, res) => {
     const post = await Post.findOne({ slug: req.params.slug })
       .populate("comments")
       .populate("likes")
-      .populate("author", "name"); // Include author's name here too
+      .populate("author", "name bio"); // Include author's name here too
 
     if (!post) return res.status(404).json({ error: "Post not found" });
     res.json(post);

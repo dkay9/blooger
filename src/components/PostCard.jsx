@@ -26,6 +26,7 @@ export default function PostCard({ post }) {
   const authorName = typeof post.author === "object" ? post.author.name : post.author;
 const authorSlug = slugify(authorName || "anonymous");
 
+console.log("Author data:", post.author);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
