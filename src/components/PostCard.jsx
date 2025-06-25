@@ -24,7 +24,7 @@ export default function PostCard({ post }) {
     str?.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
 
   const authorName = typeof post.author === "object" ? post.author.name : post.author;
-  const authorSlug = slugify(authorName || "anonymous");
+const authorSlug = slugify(authorName || "anonymous");
 
 
   useEffect(() => {
@@ -115,15 +115,10 @@ export default function PostCard({ post }) {
                   className="text-black dark:text-white hover:underline"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {post.author || "Anonymous"}
+                  {post.author?.name || "Anonymous"}
                 </Link>
                 <div className="absolute top-full left-0 mt-1 pointer-events-none group-hover:pointer-events-auto group-hover:block hidden z-20">
-                  <AuthorBadge
-                    author={{
-                      name: post.author || "Anonymous",
-                      bio: "A passionate writer",
-                    }}
-                  />
+                  <AuthorBadge author={post.author} />
                 </div>
               </div>
 
