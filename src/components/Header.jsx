@@ -30,6 +30,10 @@ export default function Header() {
     }
   };
 
+  const slugify = (str) =>
+  str?.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+
+
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -74,7 +78,7 @@ export default function Header() {
                 <Link to="/notifications" title="Notifications" className="hover:text-blue-500">
                   <Bell className="w-5 h-5" />
                 </Link>
-                <Link to="/profile" title="Profile" className="hover:text-blue-500">
+                <Link to={`/profile/${slugify(currentUser.name)}`} title="Profile" className="hover:text-blue-500">
                   <User className="w-5 h-5" />
                 </Link>
                 <button
@@ -135,7 +139,7 @@ export default function Header() {
                     Write Post
                   </Link>
                   <Link
-                    to="/profile"
+                    to={`/profile/${slugify(currentUser.name)}`}
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-2"
                   >

@@ -25,14 +25,15 @@ export function AuthProvider({ children }) {
     fetchUser().finally(() => setLoading(false));
   }, []);
 
-  const login = async (email, password) => {
-    const res = await axios.post("http://localhost:5050/api/auth/login", {
-      email,
-      password,
-    });
-    localStorage.setItem("token", res.data.token);
-    await fetchUser();
-  };
+  const login = async ({ email, password }) => {
+  const res = await axios.post("http://localhost:5050/api/auth/login", {
+    email,
+    password,
+  });
+  localStorage.setItem("token", res.data.token);
+  await fetchUser();
+};
+
 
   const logout = () => {
     localStorage.removeItem("token");
