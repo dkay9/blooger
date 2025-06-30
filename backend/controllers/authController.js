@@ -1,23 +1,37 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const user = await User.create({ name, email, password });
 
-    // Include name and email in token payload
-    const token = jwt.sign(
-      { id: user._id, name: user.name, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    // Hash password
+    const hashed = await bcrypt.hash(password, 10);
 
-    res.status(201).json({ token });
+    // Slugify the name to create username
+    const slugify = (str) =>
+      str?.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+
+    const username = slugify(name);
+
+    // Create new user
+    const newUser = new User({
+      name,
+      email,
+      password: hashed,
+      username,
+    });
+
+    await newUser.save();
+
+    res.status(201).json({ message: "User created successfully" });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: "Registration failed" });
   }
 };
+
 
 exports.loginUser = async (req, res) => {
   try {

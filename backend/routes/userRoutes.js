@@ -7,7 +7,7 @@ const authMiddleware = require("../middleware/auth");
 router.get("/:username", async (req, res) => {
   try {
     const user = await User.findOne({
-      name: new RegExp("^" + req.params.username + "$", "i"),
+      username: req.params.username,
     }).select("-password");
 
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -16,6 +16,7 @@ router.get("/:username", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // Update logged-in user's profile
 router.put("/update-profile", authMiddleware, async (req, res) => {
