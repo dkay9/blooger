@@ -104,7 +104,7 @@ export default function Profile({ allPosts = [] }) {
     return <div className="p-8 text-center text-red-500">{error}</div>;
 
   const userPosts = allPosts?.filter(
-    (p) => slugify(p.author) === slugify(profileUser.name)
+    (p) => slugify(p.author) === profileUser.username
   );
 
 
