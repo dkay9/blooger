@@ -2,10 +2,10 @@ import { useParams } from "react-router-dom";
 import Header from "../components/Header";
 import DOMPurify from "dompurify";
 
-export default function Post({ posts }) {
+export default function Post({ posts = [] }) {
   const { slug } = useParams();
-  const post = posts.find(p => p.slug === slug);
-  
+
+  const post = posts?.find((p) => p.slug === slug);
 
   if (!post) {
     return <div className="p-8 text-center text-gray-500">Post not found.</div>;
@@ -18,7 +18,7 @@ export default function Post({ posts }) {
         <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
 
         <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          <span>By {post.author || "Anonymous"}</span>
+          <span>By {post.author?.name || post.author || "Anonymous"}</span>
           <span className="mx-2">·</span>
           <span>
             {new Date(post.createdAt).toLocaleDateString("en-US", {

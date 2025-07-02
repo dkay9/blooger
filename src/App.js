@@ -1,4 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { PostProvider } from './context/PostContext';
+
 import Home from './pages/Home';
 import Post from './pages/Post';
 import Login from './pages/Login';
@@ -6,7 +10,6 @@ import Signup from './pages/Signup';
 import PostEditor from './components/PostEditor';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { PostProvider } from './context/PostContext';
 import Profile from './pages/Profile';
 import { Toaster } from 'react-hot-toast';
 
@@ -15,7 +18,7 @@ function ProtectedRoute({ children }) {
   return currentUser ? children : <Navigate to="/login" replace />;
 }
 
-function AppRoutes() {
+function AppRoutes({ allPosts }) {
   const { currentUser } = useAuth();
 
   const slugify = (str) =>
@@ -23,10 +26,10 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Home allPosts={allPosts} />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      
+
       <Route
         path="/editor"
         element={
@@ -47,20 +50,35 @@ function AppRoutes() {
         }
       />
 
-      <Route path="/profile/:username" element={<Profile />} />
-      <Route path="/post/:slug" element={<Post />} />
+      <Route path="/profile/:username" element={<Profile allPosts={allPosts} />} />
+      <Route path="/post/:slug" element={<Post posts={allPosts} />} />
     </Routes>
   );
 }
 
 export default function App() {
+  const [allPosts, setAllPosts] = useState([]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await axios.get('http://localhost:5050/api/posts');
+        setAllPosts(res.data);
+      } catch (err) {
+        console.error("Failed to fetch posts", err);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
   return (
     <Router>
       <AuthProvider>
         <PostProvider>
           <ThemeProvider>
             <Toaster position="top-right" />
-            <AppRoutes />
+            <AppRoutes allPosts={allPosts} />
           </ThemeProvider>
         </PostProvider>
       </AuthProvider>

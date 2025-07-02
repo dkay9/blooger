@@ -5,11 +5,12 @@ import PostCard from "../components/PostCard";
 import axios from "axios";
 import { Edit, Save, Camera, X } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { usePosts } from "../context/PostContext";
 
 const CLOUD_NAME = "dheekay11";
 const UPLOAD_PRESET = "blooger_posts";
 
-export default function Profile({ allPosts = [] }) {
+export default function Profile() {
   const { username } = useParams();
   const [profileUser, setProfileUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,6 +20,7 @@ export default function Profile({ allPosts = [] }) {
   const [preview, setPreview] = useState("");
   const [isCurrentUser, setIsCurrentUser] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const { posts: allPosts } = usePosts();
 
   const [showBioModal, setShowBioModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -38,9 +40,6 @@ export default function Profile({ allPosts = [] }) {
         const token = localStorage.getItem("token");
         if (token) {
           const payload = JSON.parse(atob(token.split(".")[1]));
-
-          console.log("Token payload ID:", payload.id);
-          console.log("Profile user ID:", res.data._id);
 
           if (payload.id === res.data._id) {
             setIsCurrentUser(true);
@@ -103,8 +102,15 @@ export default function Profile({ allPosts = [] }) {
   if (error || !profileUser)
     return <div className="p-8 text-center text-red-500">{error}</div>;
 
+
+  if (!allPosts || allPosts.length === 0) {
+    return <div className="p-8 text-center text-gray-500">Loading posts...</div>;
+  }
+
+  console.log("All Posts:", allPosts);
+  console.log("Profile Username:", profileUser.username);
   const userPosts = allPosts?.filter(
-    (p) => slugify(p.author) === profileUser.username
+    (p) => p.author?.username === profileUser.username
   );
 
 
