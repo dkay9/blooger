@@ -49,6 +49,7 @@ exports.getAllPosts = async (req, res) => {
 console.log(posts)
     res.json(postsWithCounts);
   } catch (err) {
+    console.error("❌ Error in getAllPosts:", err);
     res.status(500).json({ error: err.message });
   }
 };
