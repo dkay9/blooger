@@ -25,20 +25,23 @@ export default function AuthorHoverCard({ author }) {
         </Link>
       </HoverCardTrigger>
 
-      <HoverCardContent className="bg-white dark:bg-gray-800 rounded-md border shadow-md w-72 p-4 space-y-2">
+      <HoverCardContent className="bg-white dark:bg-gray-800 rounded-md shadow-md w-72 p-4 space-y-2">
         {/* Avatar and name */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-3">
           <img
             src={author.image || "/default-avatar.png"}
             alt={author.name}
-            className="w-12 h-12 rounded-full object-cover border"
+            className="w-12 h-12 rounded-full object-cover"
           />
-          <div>
-            <p className="font-semibold">{author.name}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+          <button className="text-sm bg-transparent text-black dark:text-white border  px-3 py-1 rounded-xl hover:opacity-75">
+            Follow
+          </button>
+        </div>
+        <div>
+            <p className="font-semibold text-black dark:text-white">{author.name}</p>
+            {/* <p className="text-xs text-gray-500 dark:text-gray-400">
               @{author.username || "anonymous"}
-            </p>
-          </div>
+            </p> */}
         </div>
 
         {/* Bio */}
@@ -46,15 +49,7 @@ export default function AuthorHoverCard({ author }) {
           {author.bio || "No bio available."}
         </p>
 
-        {/* Actions */}
-        <div className="flex justify-between items-center mt-3">
-          <button className="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-            Follow
-          </button>
-          <button className="text-sm text-gray-600 dark:text-gray-300 hover:text-blue-500">
-            <MessageCircle size={18} />
-          </button>
-        </div>
+        
       </HoverCardContent>
     </HoverCard>
   );

@@ -18,7 +18,7 @@ export const HoverCardContent = React.forwardRef(({ className = "", align = "cen
       align={align}
       sideOffset={sideOffset}
       data-slot="hover-card-content"
-      className={`bg-popover text-popover-foreground z-50 w-64 rounded-md border p-4 shadow-md outline-none
+      className={`bg-popover text-popover-foreground z-50 w-64 rounded-md border p-4 shadow-md
         data-[state=open]:animate-in data-[state=closed]:animate-out
         data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
         data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95
