@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { AuthorBadge } from "./AuthorBadge";
 import { Link, useNavigate } from "react-router-dom";
-import { MessageCircle, ThumbsUp } from "lucide-react";
+import { MessageCircle, ThumbsUp, Mail, UserPlus } from "lucide-react";
 import axios from "axios";
 import { isLoggedIn } from "../utils/auth";
+import AuthorHoverCard from "./AuthorHoverCard";
 
 export default function PostCard({ post }) {
   const navigate = useNavigate();
@@ -23,10 +23,9 @@ export default function PostCard({ post }) {
   const slugify = (str) =>
     str?.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
 
-  const authorName = typeof post.author === "object" ? post.author.name : post.author;
-const authorSlug = slugify(authorName || "anonymous");
-
-console.log("Author data:", post.author);
+  const author = post.author || {};
+  const authorName = typeof author === "object" ? author.name : author;
+  const authorSlug = slugify(authorName || "anonymous");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -80,16 +79,13 @@ console.log("Author data:", post.author);
     }
   };
 
-  const thumbnailSrc = post.thumbnail || null;
-
-
   return (
     <div className="relative shadow-lg md:shadow-sm transition-shadow duration-300 min-h-[10rem] md:h-40 cursor-default mb-14 overflow-visible">
       <div className="flex flex-col md:flex-row md:items-center md:gap-x-6">
-        {thumbnailSrc && (
+        {post.thumbnail && (
           <div className="w-full h-48 md:w-40 md:h-full flex-shrink-0">
             <img
-              src={thumbnailSrc}
+              src={post.thumbnail}
               alt={post.title}
               className="w-full h-full object-cover"
             />
@@ -110,19 +106,7 @@ console.log("Author data:", post.author);
 
           <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 flex justify-between items-center">
             <div className="flex items-center gap-2 relative">
-              <div className="relative group z-0">
-                <Link
-                  to={`/profile/${authorSlug}`}
-                  className="text-black dark:text-white hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {post.author?.name || "Anonymous"}
-                </Link>
-                <div className="absolute top-full left-0 mt-1 pointer-events-none group-hover:pointer-events-auto group-hover:block hidden z-20">
-                  <AuthorBadge author={post.author} />
-                </div>
-              </div>
-
+              <AuthorHoverCard author={post.author} />
               <span className="mx-2">·</span>
               <span>{formattedDate}</span>
             </div>
@@ -136,7 +120,7 @@ console.log("Author data:", post.author);
             </Link>
           </div>
 
-          {/* Like + Comment Icons */}
+          {/* Like + Comment */}
           <div className="mt-4 flex gap-4 items-center z-0">
             <button
               onClick={handleLike}
@@ -158,7 +142,6 @@ console.log("Author data:", post.author);
             </button>
           </div>
 
-          {/* Comment Input */}
           {showCommentInput && userLoggedIn && (
             <form onSubmit={handleCommentSubmit} className="mt-3">
               <input
