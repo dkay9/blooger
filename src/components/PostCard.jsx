@@ -124,9 +124,9 @@ export default function PostCard({ post }) {
           <div className="mt-4 flex gap-4 items-center z-0">
             <button
               onClick={handleLike}
-              className="flex items-center gap-1 text-gray-500 hover:text-red-500"
+              className="flex items-center gap-1 text-gray-500 hover:text-blue-500"
             >
-              <ThumbsUp className={liked ? "text-red-500" : ""} size={16} />
+              <ThumbsUp className={liked ? "text-blue-500" : ""} size={16} />
               <span>{likesCount}</span>
             </button>
 

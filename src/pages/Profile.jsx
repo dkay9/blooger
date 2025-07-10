@@ -20,7 +20,9 @@ export default function Profile() {
   const [preview, setPreview] = useState("");
   const [isCurrentUser, setIsCurrentUser] = useState(false);
   const [updating, setUpdating] = useState(false);
-  const { posts: allPosts } = usePosts();
+  // const { posts: allPosts } = usePosts();
+  const { posts: allPosts, fetchPosts } = usePosts();
+
 
   const [showBioModal, setShowBioModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -87,6 +89,7 @@ export default function Profile() {
       );
 
       setProfileUser(res.data);
+      await fetchPosts();
       setShowBioModal(false);
       setShowImageModal(false);
       toast.success("Profile updated")

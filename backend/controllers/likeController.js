@@ -2,7 +2,8 @@ const Like = require("../models/Like");
 const Post = require("../models/Post");
 
 exports.toggleLike = async (req, res) => {
-  const { postId, userId } = req.body;
+  const { postId } = req.body;
+  const userId = req.user.id;
 
   try {
     const existingLike = await Like.findOne({ postId, userId });
