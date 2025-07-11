@@ -2,16 +2,30 @@ const Comment = require("../models/Comment");
 const Post = require("../models/Post");
 
 exports.addComment = async (req, res) => {
-  const { postId, userId, text } = req.body;
-
   try {
-    const comment = await Comment.create({ postId, userId, text });
-    await Post.findByIdAndUpdate(postId, { $push: { comments: comment._id } });
-    res.status(201).json(comment);
+    const { postId, text } = req.body;
+
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const newComment = await Comment.create({
+      postId,
+      text,
+      userId: req.user.id,
+    });
+
+    await Post.findByIdAndUpdate(postId, {
+      $push: { comments: newComment._id },
+    });
+
+    res.status(201).json(newComment);
   } catch (err) {
+    console.error("Comment error:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 exports.getCommentsByPost = async (req, res) => {
   const { postId } = req.params;

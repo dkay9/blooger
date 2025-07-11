@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MessageCircle, ThumbsUp, Mail, UserPlus } from "lucide-react";
+import { MessageCircle, ThumbsUp } from "lucide-react";
 import axios from "axios";
 import { isLoggedIn } from "../utils/auth";
 import AuthorHoverCard from "./AuthorHoverCard";
+import CommentSidebar from "./CommentSidebar"; 
 
 export default function PostCard({ post }) {
   const navigate = useNavigate();
@@ -11,9 +12,10 @@ export default function PostCard({ post }) {
 
   const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
   const [liked, setLiked] = useState(false);
-  const [showCommentInput, setShowCommentInput] = useState(false);
+  const [showCommentSidebar, setShowCommentSidebar] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [commentCount, setCommentCount] = useState(post.comments?.length || 0);
+  const [postComments, setPostComments] = useState([]);
 
   const formattedDate = new Date(post.createdAt).toLocaleDateString("en-US", {
     month: "short",
@@ -33,6 +35,22 @@ export default function PostCard({ post }) {
       setLiked(true);
     }
   }, [post.likes, userLoggedIn]);
+
+  // Fetch comments when sidebar opens
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5050/api/comments/${post._id}`);
+        setPostComments(res.data);
+      } catch (err) {
+        console.error("Failed to fetch comments:", err);
+      }
+    };
+
+    if (showCommentSidebar) {
+      fetchComments();
+    }
+  }, [showCommentSidebar, post._id]);
 
   const handleLike = async (e) => {
     e.stopPropagation();
@@ -62,7 +80,7 @@ export default function PostCard({ post }) {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post(
+      const res = await axios.post(
         "http://localhost:5050/api/comments",
         { postId: post._id, text: commentText },
         {
@@ -71,90 +89,91 @@ export default function PostCard({ post }) {
           },
         }
       );
+      setPostComments((prev) => [...prev, res.data]);
       setCommentText("");
       setCommentCount((prev) => prev + 1);
-      setShowCommentInput(false);
     } catch (err) {
       console.error("Comment error:", err);
     }
   };
 
   return (
-    <div className="relative shadow-lg md:shadow-sm transition-shadow duration-300 min-h-[10rem] md:h-40 cursor-default mb-14 overflow-visible">
-      <div className="flex flex-col md:flex-row md:items-center md:gap-x-6">
-        {post.thumbnail && (
-          <div className="w-full h-48 md:w-40 md:h-full flex-shrink-0">
-            <img
-              src={post.thumbnail}
-              alt={post.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
+    <>
+      <div className="relative shadow-lg md:shadow-sm transition-shadow duration-300 min-h-[10rem] md:h-40 cursor-default mb-14 overflow-visible">
+        <div className="flex flex-col md:flex-row md:items-center md:gap-x-6">
+          {post.thumbnail && (
+            <div className="w-full h-48 md:w-40 md:h-full flex-shrink-0">
+              <img
+                src={post.thumbnail}
+                alt={post.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
 
-        <div className="p-4 flex flex-col justify-between flex-1">
-          <h2
-            onClick={() => navigate(`/post/${post.slug}`)}
-            className="text-xl font-semibold text-gray-900 dark:text-white line-clamp-2 capitalize hover:underline cursor-pointer"
-          >
-            {post.title}
-          </h2>
+          <div className="p-4 flex flex-col justify-between flex-1">
+            <h2
+              onClick={() => navigate(`/post/${post.slug}`)}
+              className="text-xl font-semibold text-gray-900 dark:text-white line-clamp-2 capitalize hover:underline cursor-pointer"
+            >
+              {post.title}
+            </h2>
 
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-3">
-            {post.excerpt || "No preview available..."}
-          </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-3">
+              {post.excerpt || "No preview available..."}
+            </p>
 
-          <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 flex justify-between items-center">
-            <div className="flex items-center gap-2 relative">
-              <AuthorHoverCard author={post.author} />
-              <span className="mx-2">·</span>
-              <span>{formattedDate}</span>
+            <div className="mt-4 text-sm text-gray-500 dark:text-gray-400 flex justify-between items-center">
+              <div className="flex items-center gap-2 relative">
+                <AuthorHoverCard author={post.author} />
+                <span className="mx-2">·</span>
+                <span>{formattedDate}</span>
+              </div>
+
+              <Link
+                to={`/post/${post.slug}`}
+                className="text-blue-500 hover:underline z-10"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Read more
+              </Link>
             </div>
 
-            <Link
-              to={`/post/${post.slug}`}
-              className="text-blue-500 hover:underline z-10"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Read more
-            </Link>
+            {/* Like + Comment */}
+            <div className="mt-4 flex gap-4 items-center z-0">
+              <button
+                onClick={handleLike}
+                className="flex items-center gap-1 text-gray-500 hover:text-blue-500"
+              >
+                <ThumbsUp className={liked ? "text-blue-500" : ""} size={16} />
+                <span>{likesCount}</span>
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowCommentSidebar(true);
+                }}
+                className="flex items-center gap-1 text-gray-500 hover:text-blue-500"
+              >
+                <MessageCircle size={16} />
+                <span>{commentCount}</span>
+              </button>
+            </div>
           </div>
-
-          {/* Like + Comment */}
-          <div className="mt-4 flex gap-4 items-center z-0">
-            <button
-              onClick={handleLike}
-              className="flex items-center gap-1 text-gray-500 hover:text-blue-500"
-            >
-              <ThumbsUp className={liked ? "text-blue-500" : ""} size={16} />
-              <span>{likesCount}</span>
-            </button>
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowCommentInput((prev) => !prev);
-              }}
-              className="flex items-center gap-1 text-gray-500 hover:text-blue-500"
-            >
-              <MessageCircle size={16} />
-              <span>{commentCount}</span>
-            </button>
-          </div>
-
-          {showCommentInput && userLoggedIn && (
-            <form onSubmit={handleCommentSubmit} className="mt-3">
-              <input
-                type="text"
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Write a comment..."
-                className="w-full px-3 py-2 border rounded-md text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-              />
-            </form>
-          )}
         </div>
       </div>
-    </div>
+
+      {/* Comment Sidebar */}
+      <CommentSidebar
+        isOpen={showCommentSidebar}
+        onClose={() => setShowCommentSidebar(false)}
+        comments={postComments}
+        commentText={commentText}
+        setCommentText={setCommentText}
+        onSubmit={handleCommentSubmit}
+        userLoggedIn={userLoggedIn}
+      />
+    </>
   );
 }
