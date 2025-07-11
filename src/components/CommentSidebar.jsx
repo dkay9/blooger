@@ -1,5 +1,6 @@
-// src/components/CommentSidebar.jsx
 import { useEffect, useRef } from "react";
+import Skeleton from "./ui/Skeleton";
+import { Link } from "react-router-dom";
 
 export default function CommentSidebar({
   isOpen,
@@ -9,10 +10,10 @@ export default function CommentSidebar({
   setCommentText,
   onSubmit,
   userLoggedIn,
+  loading = false,
 }) {
   const sidebarRef = useRef();
 
-  // Close on outside click
   useEffect(() => {
     function handleClickOutside(e) {
       if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
@@ -28,6 +29,11 @@ export default function CommentSidebar({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen, onClose]);
+
+  useEffect(() => {
+    console.log("Loaded comments:", comments);
+  }, [comments]);
+
 
   return (
     <div
@@ -57,13 +63,32 @@ export default function CommentSidebar({
 
         <div className="p-4 overflow-y-auto h-[calc(100%-4rem)] space-y-4">
           {/* Comments */}
-          {comments.length > 0 ? (
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <Skeleton className="w-8 h-8 rounded-full" />
+                <div className="flex-1 space-y-1">
+                  <Skeleton className="h-3 w-1/3" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+              </div>
+            ))
+          ) : comments.length > 0 ? (
             comments.map((comment, index) => (
-              <div key={index} className="text-sm border-b pb-2">
-                <p className="font-semibold text-gray-700 dark:text-gray-300">
-                  {comment.user?.name || "Anonymous"}
-                </p>
-                <p className="text-gray-600 dark:text-gray-400">{comment.text}</p>
+              <div key={index} className="text-sm border-b pb-2 flex gap-2">
+                <img
+                  src={comment.userId?.avatar || "/default-avatar.png"}
+                  alt="avatar"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <div>
+                  <p className="font-semibold text-gray-700 dark:text-gray-300">
+                    <Link to={`/profile/${comment.userId?._id || "anonymous"}`} className="hover:underline">
+                      {comment.userId?.name || "Anonymous"}
+                    </Link>
+                  </p>
+                  <p className="text-gray-600 dark:text-gray-400">{comment.text}</p>
+                </div>
               </div>
             ))
           ) : (

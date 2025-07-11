@@ -19,7 +19,8 @@ exports.addComment = async (req, res) => {
       $push: { comments: newComment._id },
     });
 
-    res.status(201).json(newComment);
+    const populatedComment = await newComment.populate('userId', 'name avatar');
+    res.status(201).json(populatedComment);
   } catch (err) {
     console.error("Comment error:", err);
     res.status(500).json({ error: err.message });
@@ -31,7 +32,11 @@ exports.getCommentsByPost = async (req, res) => {
   const { postId } = req.params;
 
   try {
-    const comments = await Comment.find({ postId }).sort({ createdAt: -1 });
+    const comments = await Comment.find({ postId })
+    .sort({ createdAt: -1 })
+    .populate("userId", "name avatar");
+
+    console.log("Fetched comments:", comments);
     res.status(200).json(comments);
   } catch (err) {
     res.status(500).json({ error: err.message });
