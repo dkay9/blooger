@@ -77,15 +77,24 @@ export default function CommentSidebar({
             comments.map((comment, index) => (
               <div key={index} className="text-sm border-b pb-2 flex gap-2">
                 <img
-                  src={comment.userId?.avatar || "/default-avatar.png"}
+                  src={comment.userId?.image || "/default-avatar.png"}
                   alt="avatar"
                   className="w-8 h-8 rounded-full object-cover"
                 />
                 <div>
                   <p className="font-semibold text-gray-700 dark:text-gray-300">
-                    <Link to={`/profile/${comment.userId?._id || "anonymous"}`} className="hover:underline">
-                      {comment.userId?.name || "Anonymous"}
+                    {comment.userId?.name ? (
+                    <Link
+                        to={`/profile/${comment.userId.name
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                        className="hover:underline"
+                    >
+                        {comment.userId.name}
                     </Link>
+                    ) : (
+                    <span className="text-gray-400">Anonymous</span>
+                    )}
                   </p>
                   <p className="text-gray-600 dark:text-gray-400">{comment.text}</p>
                 </div>
