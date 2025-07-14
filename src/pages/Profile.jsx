@@ -31,32 +31,34 @@ export default function Profile() {
     str?.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(`http://localhost:5050/api/users/${username}`);
-        setProfileUser(res.data);
-        setBio(res.data.bio || "");
-        setImage(res.data.image || "");
-        setPreview(res.data.image || "");
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5050/api/users/${username}`);
+      setProfileUser(res.data);
+      setBio(res.data.bio || "");
+      setImage(res.data.image || "");
+      setPreview(res.data.image || "");
 
-        const token = localStorage.getItem("token");
-        if (token) {
-          const payload = JSON.parse(atob(token.split(".")[1]));
-
-          if (payload.id === res.data._id) {
-            setIsCurrentUser(true);
-          }
+      const token = localStorage.getItem("token");
+      if (token) {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        if (payload.id === res.data._id) {
+          setIsCurrentUser(true);
         }
-
-      } catch (err) {
-        setError("User not found or server error.");
-      } finally {
-        setLoading(false);
       }
-    };
 
-    fetchUser();
-  }, [username]);
+      // ✅ Fetch posts once user is loaded
+      await fetchPosts();
+    } catch (err) {
+      setError("User not found or server error.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchUser();
+  }, [username, fetchPosts]); // Add fetchPosts to dependency array
+
 
   const handleUpdateProfile = async () => {
     setUpdating(true);
@@ -110,8 +112,6 @@ export default function Profile() {
     return <div className="p-8 text-center text-gray-500">Loading posts...</div>;
   }
 
-  console.log("All Posts:", allPosts);
-  console.log("Profile Username:", profileUser.username);
   const userPosts = allPosts?.filter(
     (p) => p.author?.username === profileUser.username
   );

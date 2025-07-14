@@ -38,7 +38,7 @@ exports.getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
       .sort({ createdAt: -1 })
-      .populate("author", "name bio image") // Populate just the author's name
+      .populate("author", "name bio image username") // Populate just the author's name
       .lean(); // lean() makes it return plain JS objects
 
     const postsWithCounts = posts.map((post) => ({
@@ -46,10 +46,10 @@ exports.getAllPosts = async (req, res) => {
       likeCount: post.likes?.length || 0,
       commentCount: post.comments?.length || 0,
     }));
-console.log(posts)
+// console.log(posts)
     res.json(postsWithCounts);
   } catch (err) {
-    console.error("❌ Error in getAllPosts:", err);
+    console.error("Error in getAllPosts:", err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -67,3 +67,14 @@ exports.getPostBySlug = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 }
+
+exports.getUserPosts = async (req, res) => {
+  try {
+    const userId = req.user.id; // coming from auth middleware
+    const posts = await Post.find({ author: userId }).sort({ createdAt: -1 });
+    res.json(posts);
+  } catch (err) {
+    console.error("Error fetching user posts:", err);
+    res.status(500).json({ message: "Failed to fetch user posts" });
+  }
+};

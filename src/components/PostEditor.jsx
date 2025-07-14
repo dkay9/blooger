@@ -84,7 +84,7 @@ export default function PostEditor({ currentUser }) {
   const navigate = useNavigate();
   const quillRef = useRef(null);
   const modules = useMemo(() => getModules(quillRef), [quillRef]);
-  const { addPost } = usePosts(); // Grab addPost from context
+  const { addPost, fetchPosts } = usePosts(); 
 
   function stripHtml(html) {
     const tmp = document.createElement("div");
@@ -107,84 +107,77 @@ export default function PostEditor({ currentUser }) {
     setPreview(file ? URL.createObjectURL(file) : null);
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+async function handleSubmit(e) {
+  e.preventDefault();
 
-    const newErrors = {};
-    if (!title.trim()) newErrors.title = "Title is required.";
-    if (!stripHtml(content).trim()) newErrors.content = "Content cannot be empty.";
-    if (!thumbnail) newErrors.thumbnail = "Thumbnail is required.";
-    if (!categories.includes(category)) newErrors.category = "Invalid category selected.";
+  const newErrors = {};
+  if (!title.trim()) newErrors.title = "Title is required.";
+  if (!stripHtml(content).trim()) newErrors.content = "Content cannot be empty.";
+  if (!thumbnail) newErrors.thumbnail = "Thumbnail is required.";
+  if (!categories.includes(category)) newErrors.category = "Invalid category selected.";
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
+  setErrors({});
+  setLoading(true);
+
+  const excerpt = stripHtml(content).slice(0, 100) + "...";
+  const safeContent = DOMPurify.sanitize(content);
+  const slug = `${slugify(title)}-${Date.now()}`;
+  const token = localStorage.getItem("token");
+
+  let thumbnailUrl = "";
+  if (thumbnail) {
+    try {
+      const formData = new FormData();
+      formData.append("file", thumbnail);
+      formData.append("upload_preset", UPLOAD_PRESET);
+
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        { method: "POST", body: formData }
+      );
+      const data = await res.json();
+      thumbnailUrl = data.secure_url;
+    } catch {
+      setLoading(false);
+      setErrors({ thumbnail: "Image upload failed." });
       return;
     }
-
-    setErrors({});
-    setLoading(true);
-
-    const excerpt = stripHtml(content).slice(0, 100) + "...";
-    const safeContent = DOMPurify.sanitize(content);
-    const slug = `${slugify(title)}-${Date.now()}`;
-    const token = localStorage.getItem("token");
-
-    let thumbnailUrl = "";
-    if (thumbnail) {
-      try {
-        const formData = new FormData();
-        formData.append("file", thumbnail);
-        formData.append("upload_preset", UPLOAD_PRESET);
-
-        const res = await fetch(
-          `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-          { method: "POST", body: formData }
-        );
-        const data = await res.json();
-        thumbnailUrl = data.secure_url;
-      } catch {
-        setLoading(false);
-        setErrors({ thumbnail: "Image upload failed." });
-        return;
-      }
-    }
-
-    try {
-      const res = await axios.post(
-        "http://localhost:5050/api/posts",
-        {
-          title,
-          content: safeContent,
-          slug,
-          excerpt,
-          thumbnail: thumbnailUrl,
-          category
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          }
-        }
-      );
-
-      // Update context state with new post
-      addPost(res.data);
-
-      // Reset form
-      setTitle("");
-      setContent("");
-      setThumbnail(null);
-      setPreview(null);
-
-      // Navigate to homepage
-      navigate("/");
-    } catch (err) {
-      setErrors({ submit: "Failed to create post. Please try again." });
-      console.error("Post creation error:", err);
-    } finally {
-      setLoading(false);
-    }
   }
+
+  try {
+    const res = await axios.post(
+      "http://localhost:5050/api/posts",
+      {
+        title,
+        content: safeContent,
+        slug,
+        excerpt,
+        thumbnail: thumbnailUrl,
+        category
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      }
+    );
+
+    addPost(res.data);         // 1. update context
+    await fetchPosts();        // 2. force fresh refetch
+    navigate(`/profile/${currentUser?.username}`); // 3. redirect to profile page
+
+  } catch (err) {
+    setErrors({ submit: "Failed to create post. Please try again." });
+    console.error("Post creation error:", err);
+  } finally {
+    setLoading(false);
+  }
+}
 
   return (
     <>
