@@ -166,7 +166,7 @@ async function handleSubmit(e) {
         }
       }
     );
-
+    console.log("currentUser in PostEditor:", currentUser);
     addPost(res.data);         // 1. update context
     await fetchPosts();        // 2. force fresh refetch
     navigate(`/profile/${currentUser?.username}`); // 3. redirect to profile page

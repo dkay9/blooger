@@ -8,18 +8,20 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true); // To prevent flickering
 
   const fetchUser = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return setCurrentUser(null);
+  const token = localStorage.getItem("token");
+  if (!token) return setCurrentUser(null);
 
-    try {
-      const res = await axios.get("http://localhost:5050/api/auth/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setCurrentUser(res.data);
-    } catch {
-      setCurrentUser(null);
-    }
-  };
+  // ✅ Make sure axios uses this token by default (after refresh too)
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+  try {
+    const res = await axios.get("http://localhost:5050/api/auth/me");
+    setCurrentUser(res.data);
+  } catch {
+    setCurrentUser(null);
+  }
+};
+
 
   useEffect(() => {
     fetchUser().finally(() => setLoading(false));
@@ -30,9 +32,15 @@ export function AuthProvider({ children }) {
     email,
     password,
   });
+
   localStorage.setItem("token", res.data.token);
+
+  // ✅ Automatically add token to all future axios requests
+  axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
+
   await fetchUser();
 };
+
 
 
   const logout = () => {

@@ -5,6 +5,9 @@ exports.toggleLike = async (req, res) => {
   const { postId } = req.body;
   const userId = req.user.id;
 
+  console.log("ToggleLike triggered. User:", req.user);
+  console.log("req.user:", req.user);
+
   try {
     const existingLike = await Like.findOne({ postId, userId });
 

@@ -8,7 +8,9 @@ module.exports = function (req, res, next) {
 
   try {
     const token = authHeader.split(" ")[1];
+    console.log("Received token:", token);
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Decoded user:", decoded);
     req.user = decoded;
     next();
   } catch (err) {

@@ -34,7 +34,7 @@ function AppRoutes({ allPosts }) {
         path="/editor"
         element={
           <ProtectedRoute>
-            <PostEditor />
+            <PostEditor currentUser={currentUser} />
           </ProtectedRoute>
         }
       />
