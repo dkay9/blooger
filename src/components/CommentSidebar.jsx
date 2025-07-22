@@ -1,6 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Skeleton from "./ui/Skeleton";
 import { Link } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import LoginModal from "./LoginModal";
 
 export default function CommentSidebar({
   isOpen,
@@ -13,6 +15,7 @@ export default function CommentSidebar({
   loading = false,
 }) {
   const sidebarRef = useRef();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     function handleClickOutside(e) {
