@@ -34,6 +34,16 @@ export default function CommentSidebar({
     console.log("Loaded comments:", comments);
   }, [comments]);
 
+  const handleGuestAttempt = () => {
+    // Show toast (optional)
+    toast("Login to like or comment");
+
+    // Open login modal
+    setShowLoginModal(true);
+
+    // Optional: save current page for redirect after login
+    localStorage.setItem("returnTo", window.location.pathname);
+  };
 
   return (
     <div
@@ -104,24 +114,43 @@ export default function CommentSidebar({
             <p className="text-gray-500">No comments yet.</p>
           )}
 
-          {/* New Comment Form */}
-          {userLoggedIn && (
-            <form onSubmit={onSubmit} className="mt-4">
-              <textarea
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Write a comment..."
-                rows={3}
-                className="w-full px-3 py-2 border rounded-md text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-              />
-              <button
-                type="submit"
-                className="mt-2 bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
-              >
-                Post Comment
-              </button>
-            </form>
-          )}
+         <form onSubmit={userLoggedIn ? onSubmit : handleGuestAttempt} className="mt-4">
+          <textarea
+            value={commentText}
+            onChange={(e) => {
+              if (!userLoggedIn) {
+                handleGuestAttempt(); // show modal
+                return;
+              }
+              setCommentText(e.target.value);
+            }}
+            placeholder={
+              userLoggedIn ? "Write a comment..." : "Login to write a comment"
+            }
+            rows={3}
+            disabled={!userLoggedIn}
+            onFocus={() => {
+              if (!userLoggedIn) handleGuestAttempt();
+            }}
+            className={`w-full px-3 py-2 border rounded-md text-sm ${
+              userLoggedIn
+                ? "dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                : "bg-gray-100 text-gray-500 cursor-not-allowed"
+            }`}
+          />
+          <button
+            type="submit"
+            disabled={!userLoggedIn}
+            className={`mt-2 px-4 py-1 rounded ${
+              userLoggedIn
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            Post Comment
+          </button>
+         </form>
+         {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
         </div>
       </div>
     </div>
