@@ -12,8 +12,9 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Profile from './pages/Profile';
 import { Toaster } from 'react-hot-toast';
+// import LoginModal from './components/LoginModal';
 import { ModalProvider, useModal } from './context/ModalContext';
-import { ModalProvider } from './context/ModalContext';
+import LoginModalWrapper from './components/LoginModalWrapper';
 
 function ProtectedRoute({ children }) {
   const { currentUser } = useAuth();
@@ -60,7 +61,6 @@ function AppRoutes({ allPosts }) {
 
 export default function App() {
   const [allPosts, setAllPosts] = useState([]);
-  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     const fetchPosts = async () => {

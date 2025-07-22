@@ -12,6 +12,9 @@ import { useModal } from '../context/ModalContext';
 export default function PostCard({ post }) {
   const navigate = useNavigate();
   const userLoggedIn = isLoggedIn();
+  // const { setShowLoginModal } = useModal();
+  const { openLoginModal } = useModal();
+
 
   const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
   const [liked, setLiked] = useState(false);
@@ -20,7 +23,6 @@ export default function PostCard({ post }) {
   const [showCommentSidebar, setShowCommentSidebar] = useState(false);
   const [postComments, setPostComments] = useState([]);
   const [loadingComments, setLoadingComments] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const formattedDate = new Date(post.createdAt).toLocaleDateString("en-US", {
     month: "short",
@@ -43,12 +45,12 @@ export default function PostCard({ post }) {
 
   const handleLike = async (e) => {
     e.stopPropagation();
-    if (!userLoggedIn) {
-      toast("Login to like posts");
-      setShowLoginModal(true);
-      localStorage.setItem("returnTo", window.location.pathname);
-      return;
-    }
+     if (!userLoggedIn) {
+    toast("Login to like posts");
+    openLoginModal(); // ✅ Use the context function
+    localStorage.setItem("returnTo", window.location.pathname);
+    return;
+  }
 
     try {
       const token = localStorage.getItem("token");
@@ -176,7 +178,6 @@ export default function PostCard({ post }) {
         userLoggedIn={userLoggedIn}
         loading={loadingComments}
       />
-    {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
     </div>
   );
 }
